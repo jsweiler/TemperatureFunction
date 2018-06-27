@@ -4,3 +4,5 @@
 
 /src/.vs/TemperatureFunction/v15/Server/sqlite3
 /src/.vs/TemperatureFunction/v15/.suo
+/src/.vs
+/src/TemperatureFunction/Properties/PublishProfiles/TemperatureFunctionApp - Web Deploy.pubxml
