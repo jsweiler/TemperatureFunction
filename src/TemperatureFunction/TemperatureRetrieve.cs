@@ -16,16 +16,18 @@ namespace TemperatureFunction
         public static async System.Threading.Tasks.Task RunAsync([TimerTrigger("* */5 * * * *")]TimerInfo myTimer, TraceWriter log, ExecutionContext context)
         {
             log.Info($"C# Timer trigger function executed at: {DateTime.Now}");
+            var config = new ConfigurationBuilder()
+                .SetBasePath(context.FunctionAppDirectory)
+                .AddJsonFile("local.settings.json", optional: true, reloadOnChange: false)
+                .AddEnvironmentVariables()
+                .Build();
 
-            var url = "http://api.openweathermap.org/data/2.5/weather?zip=17517&appid=085424cf14a8269a2c0cbff5820fe231&units=imperial";
+
+            var key = config["OpenWeatherApiKey"];
+            var url = $"http://api.openweathermap.org/data/2.5/weather?zip=17517&appid={key}&units=imperial";
             var weather = await url
                 .GetJsonAsync<Rootobject>();
 
-            var config = new ConfigurationBuilder()
-              .SetBasePath(context.FunctionAppDirectory)
-              .AddJsonFile("local.settings.json", optional: true, reloadOnChange: false)
-              .AddEnvironmentVariables()
-              .Build();
             var val = config.GetConnectionString("LocalDb");
 
             var storageAccount = CloudStorageAccount.Parse(val);
@@ -34,7 +36,7 @@ namespace TemperatureFunction
             await tempTable.CreateIfNotExistsAsync();
             var insert = TableOperation.Insert(new TemperatureEntity(weather.main.temp_min.ToString()));
             await tempTable.ExecuteAsync(insert);
-            
+
 
             log.Info("done.");
         }
